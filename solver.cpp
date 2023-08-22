@@ -2,20 +2,30 @@
 #include <math.h>
 #include <assert.h>
 
-const int INF_ROOTS = -1;
+// TODO: "" vs <> (include)
+
 const double EPSILON = 0.000001;
 
-int isZero (double number);
+enum NUMBERS_OF_ROOTS  {NO_ROOTS = 0, ONE_ROOT,
+                        TWO_ROOTS, INF_ROOTS};
+
+
+// TODO: multiple cpp files
+// TODO: headers, rename file, main.cpp
+
+
+bool isZero (double number);
 int solveLinear(const double a, const double b,
                     double* x1);
 int solveSquare(const  double a, const double b,
                 const double c, double* x1, double* x2);
+void output(int nRoots, double x1, double x2);
 
 
-int isZero (double number) {
+bool isZero (double number) {
     if (number < 0) number = -number;
-    if (number < EPSILON) return 1;
-    return 0;
+    if (number < EPSILON) return true;
+    return false;
 }
 
 int solveLinear(const double a, const double b, double* x1) {
@@ -25,9 +35,9 @@ int solveLinear(const double a, const double b, double* x1) {
 
     assert(x1 != NULL);
 
-    if (isZero(a)) return isZero(b) ? INF_ROOTS : 0;
+    if (isZero(a)) return isZero(b) ? INF_ROOTS : NO_ROOTS;
     *x1 = - b / a;
-    return 1;
+    return ONE_ROOT;
 }
 
 int solveSquare(const  double a, const double b,
@@ -42,44 +52,34 @@ int solveSquare(const  double a, const double b,
     assert(x1 != x2);
 
     if (isZero(a)) {
-        if (isZero(b)) return isZero(c) ? INF_ROOTS : 0;
+        if (isZero(b)) return isZero(c) ? INF_ROOTS : NO_ROOTS;
 
         return solveLinear(b, c, x1);
     }
 
     double D = b*b - 4*a*c;
-    if (D < 0) return 0;
+    if (D < 0) return NO_ROOTS;
 
     if (D > 0) {
         double sqD = sqrt(D);
         *x1 = (-b + sqD) / 2 / a;
         *x2 = (-b - sqD) / 2 / a;
-        return 2;
+        return TWO_ROOTS;
     }
 
     *x1 = -b / 2 / a;
-    return 1;
+    return ONE_ROOT;
 }
 
-int main() {
-    printf("# Square solver\n");
-    printf("# Solves the equation ax^2 + bx + c = 0\n\n");
-    printf("Enter a, b, c: ");
-
-    double a = 0, b = 0, c = 0;
-    scanf("%lg %lg %lg", &a, &b, &c);
-
-    double x1 = 0, x2 = 0;
-    int nRoots = solveSquare(a, b, c, &x1, &x2);
-
+void output(int nRoots, double x1, double x2) {
     switch(nRoots) {
-    case 0: printf("No roots\n");
+    case NO_ROOTS: printf("No roots\n");
             break;
 
-    case 1: printf("1 root\nx = %lg\n", x1);
+    case ONE_ROOT: printf("1 root\nx = %lg\n", x1);
             break;
 
-    case 2: printf("2 roots\nx1 = %lg\nx2 = %lg\n", x1, x2);
+    case TWO_ROOTS: printf("2 roots\nx1 = %lg\nx2 = %lg\n", x1, x2);
             break;
 
     case INF_ROOTS: printf("Any number\n");
@@ -89,4 +89,20 @@ int main() {
              break;
 
     }
+}
+
+int main() {
+    printf("# Square solver\n");
+    printf("# Solves the equation ax^2 + bx + c = 0\n\n");
+    printf("Enter a, b, c: ");
+
+    double a = 0, b = 0, c = 0;
+    scanf("%lg %lg %lg", &a, &b, &c); // TODO: check input
+
+    printf("%lg %lg %lg\n", a, b, c);
+
+    double x1 = 0, x2 = 0;
+    int nRoots = solveSquare(a, b, c, &x1, &x2);
+
+    output(nRoots, x1, x2);
 }
